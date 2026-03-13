@@ -1,18 +1,12 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <ranges>
 
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
      : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
-{
-}
+     .withInput("Input", juce::AudioChannelSet::stereo(), true)
+     .withOutput("Output", juce::AudioChannelSet::stereo(), true)) {}
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
 {
@@ -26,29 +20,17 @@ const juce::String AudioPluginAudioProcessor::getName() const
 
 bool AudioPluginAudioProcessor::acceptsMidi() const
 {
-   #if JucePlugin_WantsMidiInput
-    return true;
-   #else
     return false;
-   #endif
 }
 
 bool AudioPluginAudioProcessor::producesMidi() const
 {
-   #if JucePlugin_ProducesMidiOutput
-    return true;
-   #else
     return false;
-   #endif
 }
 
 bool AudioPluginAudioProcessor::isMidiEffect() const
 {
-   #if JucePlugin_IsMidiEffect
-    return true;
-   #else
     return false;
-   #endif
 }
 
 double AudioPluginAudioProcessor::getTailLengthSeconds() const
@@ -121,6 +103,13 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
   #endif
 }
 
+float AudioPluginAudioProcessor::triangleFold(float x) {
+    // TODO: implement this function:
+    // f(x) = sin(x) * a [a is going to act as our drive, range 1-4]
+    // g(x) = 4(abs(0.25x + 0.25 - round(0.25x + 0.25)) - 0.25)
+    // g(f(x)) will be our output
+}
+
 void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                                               juce::MidiBuffer& midiMessages)
 {
@@ -145,11 +134,23 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
-        juce::ignoreUnused (channelData);
-        // ..do something to the data...
+
+    for (const auto frameIndex : std::views::iota(0, buffer.getNumSamples())) {
+
+        // for each channel sample in the frame
+        for (const auto channelIndex :
+             std::views::iota(0, buffer.getNumChannels())) {
+            // get the input sample
+            const auto inputSample = buffer.getSample(channelIndex, frameIndex);
+
+            // we're going to do some logic here to determine
+            // which wavefolding algorithm that we want to use
+            // (sine or triangle)
+            const auto outputSample = triangleFold(inputSample);
+
+            // set the output sample
+            buffer.setSample(channelIndex, frameIndex, outputSample);
+             }
     }
 }
 
