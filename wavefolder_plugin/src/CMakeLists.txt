@@ -3,11 +3,11 @@ juce_add_plugin(${PROJECT_NAME}
         VERSION
         0.0.1 # remember version semantics!
         COMPANY_NAME
-        "DVBZY"
+        "DVBZY" # change this
         PLUGIN_MANUFACTURER_CODE
-        Dvbz
+        Dvbz # change this
         PLUGIN_CODE
-        Toot
+        Toot # change this
         FORMATS
         Standalone
         AU
