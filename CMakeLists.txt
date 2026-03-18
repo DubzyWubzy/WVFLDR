@@ -14,5 +14,7 @@ set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs)
 
 
 add_subdirectory(modules/JUCE)
-add_subdirectory(src)
+add_subdirectory(wavefolder_plugin/src)
+# add_subdirectory(wavefolder_plugin/include)
+# ^ ion even think I'll need this
 

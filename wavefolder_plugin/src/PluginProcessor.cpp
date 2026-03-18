@@ -1,6 +1,8 @@
-#include "PluginProcessor.h"
-#include "PluginEditor.h"
+#include "../include/PluginProcessor.h"
+#include "../include/PluginEditor.h"
+#include "../include/Parameters.h"
 #include <ranges>
+#include <math.h>
 
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
@@ -103,10 +105,14 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
   #endif
 }
 
-float AudioPluginAudioProcessor::triangleFold(float x) {
+float AudioPluginAudioProcessor::triangleFold(float inputSample) {
+
+    float drive = parameters.drive.get();
     // TODO: implement this function:
     // f(x) = sin(x) * a [a is going to act as our drive, range 1-4]
+    float intermediateValue = std::sin(inputSample) * drive;
     // g(x) = 4(abs(0.25x + 0.25 - round(0.25x + 0.25)) - 0.25)
+    return 4 * (std::abs(0.25f * intermediateValue + 0.25f - round(0.25f * intermediateValue + 0.25f)) - 0.25f);
     // g(f(x)) will be our output
 }
 
